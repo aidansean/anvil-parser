@@ -1,8 +1,10 @@
 from typing import List
+
+from nbt import nbt
+
 from .block import Block
 from .empty_section import EmptySection
-from .errors import OutOfBoundsCoordinates, EmptySectionAlreadyExists
-from nbt import nbt
+from .errors import EmptySectionAlreadyExists, OutOfBoundsCoordinates
 
 
 class EmptyChunk:

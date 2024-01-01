@@ -1,10 +1,11 @@
-from typing import Union, Tuple, Generator, Optional
-from nbt import nbt
-from .block import Block, OldBlock
-from .region import Region
-from .errors import OutOfBoundsCoordinates, ChunkNotFound
 import math
+from typing import Generator, Optional, Tuple, Union
 
+from nbt import nbt
+
+from .block import Block, OldBlock
+from .errors import ChunkNotFound, OutOfBoundsCoordinates
+from .region import Region
 
 # This version removes block state value stretching from the storage
 # so a block value isn't in multiple elements of the array

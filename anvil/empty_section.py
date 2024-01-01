@@ -1,9 +1,11 @@
+import array
+from struct import Struct
 from typing import List, Tuple
+
+from nbt import nbt
+
 from . import Block
 from .errors import OutOfBoundsCoordinates
-from nbt import nbt
-from struct import Struct
-import array
 
 
 def _update_fmt(self, length):
