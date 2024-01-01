@@ -1,13 +1,14 @@
-from io import BytesIO
-from nbt import nbt
-import zlib
 import math
-from typing import Union, List, BinaryIO
+import zlib
+from io import BytesIO
+from typing import BinaryIO, List, Union
 
-from .empty_chunk import EmptyChunk
-from .chunk import Chunk
-from .empty_section import EmptySection
+from nbt import nbt
+
 from .block import Block
+from .chunk import Chunk
+from .empty_chunk import EmptyChunk
+from .empty_section import EmptySection
 from .errors import OutOfBoundsCoordinates
 
 

@@ -1,11 +1,11 @@
 import math
-from typing import Union, Tuple, Generator, Optional
+from typing import Generator, Optional, Tuple, Union
+
 from nbt import nbt
 
 from .block import Block, OldBlock
+from .errors import ChunkNotFound, OutOfBoundsCoordinates
 from .region import Region
-from .errors import OutOfBoundsCoordinates, ChunkNotFound
-
 
 # This version removes block state value stretching from the storage
 # so a block value isn't in multiple elements of the array

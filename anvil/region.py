@@ -1,7 +1,9 @@
-from typing import Tuple, Union, BinaryIO
-from nbt import nbt
 import zlib
 from io import BytesIO
+from typing import BinaryIO, Tuple, Union
+
+from nbt import nbt
+
 import anvil
 
 from .errors import GZipChunkData

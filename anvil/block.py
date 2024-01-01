@@ -1,5 +1,5 @@
-from nbt import nbt
 from frozendict import frozendict
+from nbt import nbt
 
 from .legacy import LEGACY_ID_MAP
 
