@@ -30,7 +30,7 @@ class EmptyChunk:
     def __init__(self, x: int, z: int):
         self.x = x
         self.z = z
-        self.sections: List[EmptySection] = [None] * 16
+        self.sections: List[EmptySection] = [None] * 24
         self.version = 1976
 
     def add_section(self, section: EmptySection, replace: bool = True):
