@@ -3,6 +3,7 @@ from nbt import nbt
 import zlib
 from io import BytesIO
 import anvil
+
 from .errors import GZipChunkData
 
 

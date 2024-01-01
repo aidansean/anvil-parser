@@ -1,8 +1,9 @@
 from typing import List, Tuple, Sequence, Iterable
-from . import EmptySection, Block
-from .errors import OutOfBoundsCoordinates
 import array
 from nbt import nbt
+
+from . import EmptySection, Block
+from .errors import OutOfBoundsCoordinates
 
 
 def bin_append(a, b, length=None):
