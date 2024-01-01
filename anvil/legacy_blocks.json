@@ -141,7 +141,6 @@
 "21:0": ["lapis_ore", null],
 "22:0": ["lapis_block", null],
 
-"23:0": ["dispenser", null],
 "23:0": ["dispenser", {"facing": "down", "triggered": false}],
 "23:1": ["dispenser", {"facing": "up", "triggered": false}],
 "23:2": ["dispenser", {"facing": "north", "triggered": false}],
@@ -410,7 +409,7 @@
 "61:5": ["furnace", {"lit": false, "facing": "east"}],
 
 "62:0": ["furnace", {"lit": true, "facing": "north"}],
-"61:1": ["furnace", {"lit": false, "facing": "north"}],
+"62:1": ["furnace", {"lit": false, "facing": "north"}],
 "62:2": ["furnace", {"lit": true, "facing": "north"}],
 "62:3": ["furnace", {"lit": true, "facing": "south"}],
 "62:4": ["furnace", {"lit": true, "facing": "west"}],
@@ -1034,7 +1033,6 @@
 "144:1": ["skull", null],
 "144:2": ["wall_skull", null],
 "144:3": ["wall_skull", null],
-"144:4": ["wall_skull", null], 
 "144:4": ["wall_skull", null],
 
 "145:0": ["anvil", {"facing": "south"}],
@@ -1725,7 +1723,7 @@
 "233:5": ["red_shulker_box", {"facing": "east"}],
 
 "234:0": ["black_shulker_box", {"facing": "up"}],
-"233:1": ["black_shulker_box", {"facing": "up"}],
+"234:1": ["black_shulker_box", {"facing": "up"}],
 "234:2": ["black_shulker_box", {"facing": "north"}],
 "234:3": ["black_shulker_box", {"facing": "south"}],
 "234:4": ["black_shulker_box", {"facing": "west"}],
