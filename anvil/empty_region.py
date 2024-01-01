@@ -9,15 +9,17 @@ from nbt import nbt
 import zlib
 import math
 
+
 def from_inclusive(a, b):
     """Returns a range from a to b, including both endpoints"""
-    c = int(b > a)*2-1
-    return range(a, b+c, c)
+    c = int(b > a) * 2 - 1
+    return range(a, b + c, c)
+
 
 class EmptyRegion:
     """
     Used for making own regions
-    
+
     Attributes
     ----------
     chunks: List[:class:`anvil.EmptyChunk`]
@@ -25,21 +27,27 @@ class EmptyRegion:
     x: :class:`int`
     z: :class:`int`
     """
-    __slots__ = ('chunks', 'x', 'z')
+
+    __slots__ = ("chunks", "x", "z")
+
     def __init__(self, x: int, z: int):
         # Create a 1d list for the 32x32 chunks
         self.chunks: List[EmptyChunk] = [None] * 1024
         self.x = x
         self.z = z
 
-    def inside(self, x: int, y: int, z: int, chunk: bool=False) -> bool:
+    def inside(self, x: int, y: int, z: int, chunk: bool = False) -> bool:
         """
         Returns if the given coordinates are inside this region
-        
+
         Parameters
         ----------
-        int x, y, z
-            Coordinates
+        x
+            The x coordinate
+        y
+            The y coordinate
+        z
+            The z coordinate
         chunk
             Whether coordinates are global or chunk coordinates
         """
@@ -51,7 +59,7 @@ class EmptyRegion:
     def get_chunk(self, x: int, z: int) -> EmptyChunk:
         """
         Returns the chunk at given chunk coordinates
-        
+
         Parameters
         ----------
         int x, z
@@ -65,7 +73,7 @@ class EmptyRegion:
         :rtype: :class:`anvil.EmptyChunk`
         """
         if not self.inside(x, 0, z, chunk=True):
-            raise OutOfBoundsCoordinates(f'Chunk ({x}, {z}) is not inside this region')
+            raise OutOfBoundsCoordinates(f"Chunk ({x}, {z}) is not inside this region")
         return self.chunks[z % 32 * 32 + x % 32]
 
     def add_chunk(self, chunk: EmptyChunk):
@@ -76,17 +84,19 @@ class EmptyRegion:
         Parameters
         ----------
         chunk: :class:`EmptyChunk`
-        
+
         Raises
         ------
         anvil.OutOfBoundCoordidnates
             If the chunk (x, z) is not inside this region
         """
         if not self.inside(chunk.x, 0, chunk.z, chunk=True):
-            raise OutOfBoundsCoordinates(f'Chunk ({chunk.x}, {chunk.z}) is not inside this region')
+            raise OutOfBoundsCoordinates(
+                f"Chunk ({chunk.x}, {chunk.z}) is not inside this region"
+            )
         self.chunks[chunk.z % 32 * 32 + chunk.x % 32] = chunk
 
-    def add_section(self, section: EmptySection, x: int, z: int, replace: bool=True):
+    def add_section(self, section: EmptySection, x: int, z: int, replace: bool = True):
         """
         Adds section to chunk at (x, z).
         Same as ``EmptyChunk.add_section(section)``
@@ -95,18 +105,20 @@ class EmptyRegion:
         ----------
         section: :class:`EmptySection`
             Section to add
-        int x, z
-            Chunk's coordinate
+        x
+            The x coordinate of the chunk
+        z
+            The z coordinate of the chunk
         replace
             Whether to replace section if it already exists in the chunk
-        
+
         Raises
         ------
         anvil.OutOfBoundsCoordinates
             If the chunk (x, z) is not inside this region
         """
         if not self.inside(x, 0, z, chunk=True):
-            raise OutOfBoundsCoordinates(f'Chunk ({x}, {z}) is not inside this region')
+            raise OutOfBoundsCoordinates(f"Chunk ({x}, {z}) is not inside this region")
         chunk = self.chunks[z % 32 * 32 + x % 32]
         if chunk is None:
             chunk = EmptyChunk(x, z)
@@ -122,8 +134,12 @@ class EmptyRegion:
         ----------
         block: :class:`Block`
             Block to place
-        int x, y, z
-            Coordinates
+        x
+            The x coordinate
+        y
+            The y coordinate
+        z
+            The z coordinate
 
         Raises
         ------
@@ -131,7 +147,9 @@ class EmptyRegion:
             If the block (x, y, z) is not inside this region
         """
         if not self.inside(x, y, z):
-            raise OutOfBoundsCoordinates(f'Block ({x}, {y}, {z}) is not inside this region')
+            raise OutOfBoundsCoordinates(
+                f"Block ({x}, {y}, {z}) is not inside this region"
+            )
         cx = x // 16
         cz = z // 16
         chunk = self.get_chunk(cx, cz)
@@ -144,18 +162,32 @@ class EmptyRegion:
         """
         Helper function that only sets
         the block if ``self.inside(x, y, z)`` is true
-        
+
         Parameters
         ----------
         block: :class:`Block`
             Block to place
-        int x, y, z
-            Coordinates
+        x
+            The x coordinate
+        y
+            The y coordinate
+        z
+            The z coordinate
         """
         if self.inside(x, y, z):
             self.set_block(block, x, y, z)
 
-    def fill(self, block: Block, x1: int, y1: int, z1: int, x2: int, y2: int, z2: int, ignore_outside: bool=False):
+    def fill(
+        self,
+        block: Block,
+        x1: int,
+        y1: int,
+        z1: int,
+        x2: int,
+        y2: int,
+        z2: int,
+        ignore_outside: bool = False,
+    ):
         """
         Fills in blocks from
         ``(x1, y1, z1)`` to ``(x2, y2, z2)``
@@ -164,10 +196,18 @@ class EmptyRegion:
         Parameters
         ----------
         block: :class:`Block`
-        int x1, y1, z1
-            Coordinates
-        int x2, y2, z2
-            Coordinates
+        x1
+            The x coordinate
+        y1
+            The y coordinate
+        z1
+            The z coordinate
+        x2
+            The x coordinate
+        y2
+            The y coordinate
+        z2
+            The z coordinate
         ignore_outside
             Whether to ignore if coordinates are outside the region
 
@@ -178,9 +218,13 @@ class EmptyRegion:
         """
         if not ignore_outside:
             if not self.inside(x1, y1, z1):
-                raise OutOfBoundsCoordinates(f'First coords ({x1}, {y1}, {z1}) is not inside this region')
+                raise OutOfBoundsCoordinates(
+                    f"First coords ({x1}, {y1}, {z1}) is not inside this region"
+                )
             if not self.inside(x2, y2, z2):
-                raise OutOfBoundsCoordinates(f'Second coords ({x}, {y}, {z}) is not inside this region')
+                raise OutOfBoundsCoordinates(
+                    f"Second coords ({x2}, {y2}, {z2}) is not inside this region"
+                )
 
         for y in from_inclusive(y1, y2):
             for z in from_inclusive(z1, z2):
@@ -190,7 +234,7 @@ class EmptyRegion:
                     else:
                         self.set_block(block, x, y, z)
 
-    def save(self, file: Union[str, BinaryIO]=None) -> bytes:
+    def save(self, file: Union[str, BinaryIO] = None) -> bytes:
         """
         Returns the region as bytes with
         the anvil file format structure,
@@ -211,7 +255,9 @@ class EmptyRegion:
             chunk_data = BytesIO()
             if isinstance(chunk, Chunk):
                 nbt_data = nbt.NBTFile()
-                nbt_data.tags.append(nbt.TAG_Int(name='DataVersion', value=chunk.version))
+                nbt_data.tags.append(
+                    nbt.TAG_Int(name="DataVersion", value=chunk.version)
+                )
                 nbt_data.tags.append(chunk.data)
             else:
                 nbt_data = chunk.save()
@@ -228,7 +274,7 @@ class EmptyRegion:
                 offsets.append(None)
                 continue
             # 4 bytes are for length, b'\x02' is the compression type which is 2 since its using zlib
-            to_add = (len(chunk)+1).to_bytes(4, 'big') + b'\x02' + chunk
+            to_add = (len(chunk) + 1).to_bytes(4, "big") + b"\x02" + chunk
 
             # offset in 4KiB sectors
             sector_offset = len(chunks_bytes) // 4096
@@ -247,7 +293,9 @@ class EmptyRegion:
                 locations_header += bytes(4)
             else:
                 # offset is (sector offset, sector count)
-                locations_header += (offset[0] + 2).to_bytes(3, 'big') + offset[1].to_bytes(1, 'big')
+                locations_header += (offset[0] + 2).to_bytes(3, "big") + offset[
+                    1
+                ].to_bytes(1, "big")
 
         # Set them all as 0
         timestamps_header = bytes(4096)
@@ -257,12 +305,12 @@ class EmptyRegion:
         # Pad file to be a multiple of 4KiB in size
         # as Minecraft only accepts region files that are like that
         final += bytes(4096 - (len(final) % 4096))
-        assert len(final) % 4096 == 0 # just in case
+        assert len(final) % 4096 == 0  # just in case
 
         # Save to a file if it was given
         if file:
             if isinstance(file, str):
-                with open(file, 'wb') as f:
+                with open(file, "wb") as f:
                     f.write(final)
             else:
                 file.write(final)

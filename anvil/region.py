@@ -5,6 +5,7 @@ from io import BytesIO
 import anvil
 from .errors import GZipChunkData
 
+
 class Region:
     """
     Read-only region
@@ -14,7 +15,9 @@ class Region:
     data: :class:`bytes`
         Region file (``.mca``) as bytes
     """
-    __slots__ = ('data',)
+
+    __slots__ = ("data",)
+
     def __init__(self, data: bytes):
         """Makes a Region object from data, which is the region file content"""
         self.data = data
@@ -23,7 +26,7 @@ class Region:
     def header_offset(chunk_x: int, chunk_z: int) -> int:
         """
         Returns the byte offset for given chunk in the header
-        
+
         Parameters
         ----------
         chunk_x
@@ -48,14 +51,14 @@ class Region:
             Chunk's Z value
         """
         b_off = self.header_offset(chunk_x, chunk_z)
-        off = int.from_bytes(self.data[b_off : b_off + 3], byteorder='big')
+        off = int.from_bytes(self.data[b_off : b_off + 3], byteorder="big")
         sectors = self.data[b_off + 3]
-        return (off, sectors)
+        return off, sectors
 
     def chunk_data(self, chunk_x: int, chunk_z: int) -> nbt.NBTFile:
         """
         Returns the NBT data for a chunk
-        
+
         Parameters
         ----------
         chunk_x
@@ -73,14 +76,14 @@ class Region:
         if off == (0, 0):
             return
         off = off[0] * 4096
-        length = int.from_bytes(self.data[off:off + 4], byteorder='big')
-        compression = self.data[off + 4] # 2 most of the time
+        length = int.from_bytes(self.data[off : off + 4], byteorder="big")
+        compression = self.data[off + 4]  # 2 most of the time
         if compression == 1:
-            raise GZipChunkData('GZip is not supported')
+            raise GZipChunkData("GZip is not supported")
         compressed_data = self.data[off + 5 : off + 5 + length - 1]
         return nbt.NBTFile(buffer=BytesIO(zlib.decompress(compressed_data)))
 
-    def get_chunk(self, chunk_x: int, chunk_z: int) -> 'anvil.Chunk':
+    def get_chunk(self, chunk_x: int, chunk_z: int) -> "anvil.Chunk":
         """
         Returns the chunk at given coordinates,
         same as doing ``Chunk.from_region(region, chunk_x, chunk_z)``
@@ -91,8 +94,8 @@ class Region:
             Chunk's X value
         chunk_z
             Chunk's Z value
-        
-        
+
+
         :rtype: :class:`anvil.Chunk`
         """
         return anvil.Chunk.from_region(self, chunk_x, chunk_z)
@@ -108,7 +111,7 @@ class Region:
             Either a file path or a file object
         """
         if isinstance(file, str):
-            with open(file, 'rb') as f:
+            with open(file, "rb") as f:
                 return cls(data=f.read())
         else:
             return cls(data=file.read())

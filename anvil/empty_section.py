@@ -5,14 +5,19 @@ from nbt import nbt
 from struct import Struct
 import array
 
-# dirty mixin to change q to Q
+
 def _update_fmt(self, length):
-    self.fmt = Struct(f'>{length}Q')
+    # dirty mixin to change q to Q
+    self.fmt = Struct(f">{length}Q")
+
+
 nbt.TAG_Long_Array.update_fmt = _update_fmt
+
 
 def bin_append(a, b, length=None):
     length = length or b.bit_length()
     return (a << length) | b
+
 
 class EmptySection:
     """
@@ -31,36 +36,46 @@ class EmptySection:
     air: :class:`Block`
         An air block
     """
-    __slots__ = ('y', 'blocks', 'air')
+
+    __slots__ = ("y", "blocks", "air")
+
     def __init__(self, y: int):
         self.y = y
         # None is the same as an air block
         self.blocks: List[Block] = [None] * 4096
         # Block that will be used when None
-        self.air = Block('minecraft', 'air')
+        self.air = Block("minecraft", "air")
 
     @staticmethod
     def inside(x: int, y: int, z: int) -> bool:
         """
         Check if X Y and Z are in range of 0-15
-        
+
         Parameters
         ----------
-        int x, y, z
-            Coordinates
+        x
+            The x coordinate
+        y
+            The y coordinate
+        z
+            The z coordinate
         """
-        return x >= 0 and x <= 15 and y >= 0 and y <= 15 and z >= 0 and z <= 15
+        return 0 <= x <= 15 and -4 <= y <= 19 and 0 <= z <= 15
 
     def set_block(self, block: Block, x: int, y: int, z: int):
         """
         Sets the block at given coordinates
-        
+
         Parameters
         ----------
         block
             Block to set
-        int x, y, z
-            Coordinates
+        x
+            The x coordinate
+        y
+            The y coordinate
+        z
+            The z coordinate
 
         Raises
         ------
@@ -68,18 +83,22 @@ class EmptySection:
             If coordinates are not in range of 0-15
         """
         if not self.inside(x, y, z):
-            raise OutOfBoundsCoordinates('X Y and Z must be in range of 0-15')
+            raise OutOfBoundsCoordinates("X Y and Z must be in range of 0-15")
         index = y * 256 + z * 16 + x
         self.blocks[index] = block
 
     def get_block(self, x: int, y: int, z: int) -> Block:
         """
         Gets the block at given coordinates.
-        
+
         Parameters
         ----------
-        int x, y, z
-            Coordinates
+        x
+            The x coordinate
+        y
+            The y coordinate
+        z
+            The z coordinate
 
         Raises
         ------
@@ -87,7 +106,7 @@ class EmptySection:
             If coordinates are not in range of 0-15
         """
         if not self.inside(x, y, z):
-            raise OutOfBoundsCoordinates('X Y and Z must be in range of 0-15')
+            raise OutOfBoundsCoordinates("X Y and Z must be in range of 0-15")
         index = y * 256 + z * 16 + x
         return self.blocks[index] or self.air
 
@@ -103,10 +122,10 @@ class EmptySection:
             palette.add(self.air)
         return tuple(palette)
 
-    def blockstates(self, palette: Tuple[Block]=None) -> array.array:
+    def blockstates(self, palette: Tuple[Block] = None) -> array.array:
         """
         Returns a list of each block's index in the palette.
-        
+
         This is used in the BlockStates tag of the section.
 
         Parameters
@@ -116,7 +135,7 @@ class EmptySection:
         """
         palette = palette or self.palette()
         bits = max((len(palette) - 1).bit_length(), 4)
-        states = array.array('Q')
+        states = array.array("Q")
         current = 0
         current_len = 0
         for block in self.blocks:
@@ -128,7 +147,11 @@ class EmptySection:
             # with the remaining bits from last one
             if current_len + bits > 64:
                 leftover = 64 - current_len
-                states.append(bin_append(index & ((1 << leftover) - 1), current, length=current_len))
+                states.append(
+                    bin_append(
+                        index & ((1 << leftover) - 1), current, length=current_len
+                    )
+                )
                 current = index >> leftover
                 current_len = bits - leftover
             else:
@@ -143,25 +166,29 @@ class EmptySection:
         This is missing the SkyLight tag, but minecraft still accepts it anyway
         """
         root = nbt.TAG_Compound()
-        root.tags.append(nbt.TAG_Byte(name='Y', value=self.y))
+        root.tags.append(nbt.TAG_Byte(name="Y", value=self.y))
 
         palette = self.palette()
-        nbt_pal = nbt.TAG_List(name='Palette', type=nbt.TAG_Compound)
+        nbt_pal = nbt.TAG_List(name="Palette", type=nbt.TAG_Compound)
         for block in palette:
             tag = nbt.TAG_Compound()
-            tag.tags.append(nbt.TAG_String(name='Name', value=block.name()))
+            tag.tags.append(nbt.TAG_String(name="Name", value=block.name()))
             if block.properties:
                 properties = nbt.TAG_Compound()
-                properties.name = 'Properties'
+                properties.name = "Properties"
                 for key, value in block.properties.items():
                     if isinstance(value, str):
                         properties.tags.append(nbt.TAG_String(name=key, value=value))
                     elif isinstance(value, bool):
                         # booleans are a string saved as either 'true' or 'false'
-                        properties.tags.append(nbt.TAG_String(name=key, value=str(value).lower()))
+                        properties.tags.append(
+                            nbt.TAG_String(name=key, value=str(value).lower())
+                        )
                     elif isinstance(value, int):
                         # ints also seem to be saved as a string
-                        properties.tags.append(nbt.TAG_String(name=key, value=str(value)))
+                        properties.tags.append(
+                            nbt.TAG_String(name=key, value=str(value))
+                        )
                     else:
                         # assume its a nbt tag and just append it
                         properties.tags.append(value)
@@ -170,7 +197,7 @@ class EmptySection:
         root.tags.append(nbt_pal)
 
         states = self.blockstates(palette=palette)
-        bstates = nbt.TAG_Long_Array(name='BlockStates')
+        bstates = nbt.TAG_Long_Array(name="BlockStates")
         bstates.value = states
         root.tags.append(bstates)
 
