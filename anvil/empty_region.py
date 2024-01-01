@@ -11,6 +11,8 @@ from .empty_chunk import EmptyChunk
 from .empty_section import EmptySection
 from .errors import OutOfBoundsCoordinates
 
+from .constants import YMIN, YMAX
+
 
 def from_inclusive(a, b):
     """Returns a range from a to b, including both endpoints"""
@@ -56,7 +58,7 @@ class EmptyRegion:
         factor = 32 if chunk else 512
         rx = x // factor
         rz = z // factor
-        return not (rx != self.x or rz != self.z or y < 0 or y > 255)
+        return not (rx != self.x or rz != self.z or y < YMIN or y > YMAX)
 
     def get_chunk(self, x: int, z: int) -> EmptyChunk:
         """
