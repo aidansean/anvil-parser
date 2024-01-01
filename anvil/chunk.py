@@ -7,6 +7,8 @@ from .block import Block, OldBlock
 from .errors import ChunkNotFound, OutOfBoundsCoordinates
 from .region import Region
 
+from .constants import YMIN, YMAX
+
 # This version removes block state value stretching from the storage
 # so a block value isn't in multiple elements of the array
 _VERSION_20w17a = 2529
@@ -146,8 +148,8 @@ class Chunk:
             raise OutOfBoundsCoordinates(f"X ({x!r}) must be in range of 0 to 15")
         if z < 0 or z > 15:
             raise OutOfBoundsCoordinates(f"Z ({z!r}) must be in range of 0 to 15")
-        if y < 0 or y > 255:
-            raise OutOfBoundsCoordinates(f"Y ({y!r}) must be in range of 0 to 255")
+        if y < YMIN or y > YMAX:
+            raise OutOfBoundsCoordinates(f'Y ({y!r}) must be in range of {YMIN} to {YMAX}')
 
         if section is None:
             section = self.get_section(y // 16)

@@ -6,6 +6,8 @@ from .block import Block
 from .empty_section import EmptySection
 from .errors import EmptySectionAlreadyExists, OutOfBoundsCoordinates
 
+from .constants import YMIN, YMAX
+
 
 class EmptyChunk:
     """
@@ -81,8 +83,8 @@ class EmptyChunk:
             raise OutOfBoundsCoordinates(f"X ({x!r}) must be in range of 0 to 15")
         if z < 0 or z > 15:
             raise OutOfBoundsCoordinates(f"Z ({z!r}) must be in range of 0 to 15")
-        if y < 0 or y > 255:
-            raise OutOfBoundsCoordinates(f"Y ({y!r}) must be in range of 0 to 255")
+        if y < YMIN or y > YMAX:
+            raise OutOfBoundsCoordinates(f'Y ({y!r}) must be in range of {YMIN} to {YMAX}')
 
         section = self.sections[y // 16]
 
@@ -116,8 +118,8 @@ class EmptyChunk:
             raise OutOfBoundsCoordinates(f"X ({x!r}) must be in range of 0 to 15")
         if z < 0 or z > 15:
             raise OutOfBoundsCoordinates(f"Z ({z!r}) must be in range of 0 to 15")
-        if y < 0 or y > 255:
-            raise OutOfBoundsCoordinates(f"Y ({y!r}) must be in range of 0 to 255")
+        if y < YMIN or y > YMAX:
+            raise OutOfBoundsCoordinates(f'Y ({y!r}) must be in range of {YMIN} to {YMAX}')
         section = self.sections[y // 16]
         if section is None:
             section = EmptySection(y // 16)
