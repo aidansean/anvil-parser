@@ -30,7 +30,6 @@ class Entity:
         self.entity_id = entity_id
         self.properties = properties or {}
         self.x, self.y, self.z = x, y, z
-        print('my properties are', self.properties)
 
     def name(self) -> str:
         return self.entity_id
@@ -63,7 +62,6 @@ class Entity:
         new_entity.tags.append(position)
 
         for key, value in self.properties.items():
-            print('entity.py: processing', key, value)
             if isinstance(value, str):
                 new_entity.tags.append(nbt.TAG_String(name=key, value=value))
             elif isinstance(value, int):
@@ -85,5 +83,4 @@ class Entity:
             else:
                 raise TypeError(f"Unknown type {type(value)} for {key}={value}")
 
-        print('entity.py: save', new_entity)
         return new_entity

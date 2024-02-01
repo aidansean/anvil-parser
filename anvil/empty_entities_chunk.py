@@ -35,7 +35,6 @@ class EmptyEntitiesChunk:
 
 
     def add_entity(self, entity_id: str, x: int, y: int, z: int, entity_properties: dict = None):
-        print('chunk.py: set_entity', entity_id, x, y, z)
         """
         Sets entity at given coordinates
 
@@ -54,7 +53,6 @@ class EmptyEntitiesChunk:
 
 
     def save(self) -> nbt.NBTFile:
-        print('chunk.save')
         """
         Saves the chunk data to a :class:`NBTFile`
 
