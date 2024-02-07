@@ -1,3 +1,4 @@
+import gzip
 import zlib
 from io import BytesIO
 from typing import BinaryIO, Tuple, Union
@@ -6,8 +7,15 @@ from nbt import nbt
 
 import anvil
 
-from .errors import GZipChunkData
+from .errors import UnknownCompressionSchema
 
+
+# TODO: Try to implement this table as a frozendict maybe?
+DECOMPRESSION_TABLE = {
+    1: gzip.decompress,
+    2: zlib.decompress,
+    3: lambda data: data  # Type 3 is uncompressed data
+}
 
 class Region:
     """
@@ -79,12 +87,22 @@ class Region:
         if off == (0, 0):
             return
         off = off[0] * 4096
-        length = int.from_bytes(self.data[off : off + 4], byteorder="big")
-        compression = self.data[off + 4]  # 2 most of the time
-        if compression == 1:
-            raise GZipChunkData("GZip is not supported")
-        compressed_data = self.data[off + 5 : off + 5 + length - 1]
-        return nbt.NBTFile(buffer=BytesIO(zlib.decompress(compressed_data)))
+        data_start = off + 5
+        length = int.from_bytes(self.data[off:data_start - 1], byteorder='big')
+        compression = self.data[data_start - 1] # 2 most of the time
+        if compression == 127:
+            raise UnknownCompressionSchema("Cannot decode files of custom compression type 127")
+        
+        compressed_data = self.data[data_start : data_start + length - 1]
+        
+        try:
+            # Not immediately executing decompression here to avoid invalid catching
+            # (whyever a compression system should raise KeyError)
+            decompression_method = DECOMPRESSION_TABLE[compression]
+        except KeyError as e:
+            raise UnknownCompressionSchema(compression) from e
+        
+        return nbt.NBTFile(buffer=BytesIO(decompression_method(compressed_data)))
 
     def get_chunk(self, chunk_x: int, chunk_z: int) -> "anvil.Chunk":
         """
